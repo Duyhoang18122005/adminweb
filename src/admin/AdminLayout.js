@@ -119,6 +119,10 @@ const AdminLayout = ({ children }) => {
                   <i className="fas fa-dice w-6 text-center"></i>
                   <span className="ml-3">Quản lý game</span>
                 </Link>
+                <Link to="/admin/report" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/report') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>
+                  <i className="fas fa-dice w-6 text-center"></i>
+                  <span className="ml-3">Quản lý vi phạm</span>
+                </Link>
                 <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">Quản lý doanh thu</p>
                 <Link to="/admin/orders" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/orders') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>
                   <i className="fas fa-receipt w-6 text-center"></i>

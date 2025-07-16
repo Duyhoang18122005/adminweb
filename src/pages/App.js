@@ -3,6 +3,7 @@ import AdminDashboard from "../admin/AdminDashboard";
 import GameListPage from "../admin/GameList";
 import GamerListPage from "../admin/GamerListPage";
 import Order from "../admin/Order";
+import Report from "../admin/Report";
 import Revenue from "../admin/revenue";
 import RevenueWithdrawDepositPage from "../admin/RevenueWithdrawDepositPage";
 import UserListPage from "../admin/UserListPage";
@@ -43,6 +44,7 @@ function App() {
         <Route path="/admin/orders" element={<Order />} />
         <Route path="/admin/revenue" element={<Revenue />} />
         <Route path="/admin/manage-payment" element={<RevenueWithdrawDepositPage />} />
+        <Route path="/admin/report" element={<Report />} />
       </Routes>
     </div>
   );
