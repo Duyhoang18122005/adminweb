@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import AdminLayout from "./AdminLayout";
+import React, { useEffect, useState } from "react";
 import axios from "../api/axiosConfig";
+import AdminLayout from "./AdminLayout";
 
 const UserListPage = () => {
   // Dữ liệu người dùng mẫu
@@ -21,6 +21,8 @@ const UserListPage = () => {
   const [selectedRole, setSelectedRole] = useState(""); // Role đang chọn trong modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newUser, setNewUser] = useState({ username: '', email: '', fullName: '', password: '' });
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedDetailUser, setSelectedDetailUser] = useState(null);
 
   // Danh sách quyền
   const permissionGroups = [
@@ -62,20 +64,21 @@ const UserListPage = () => {
         const res = await axios.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Map dữ liệu về đúng định dạng bảng
+
         const apiUsers = res.data.map((user) => ({
+          ...user, // giữ toàn bộ trường gốc
           id: user.id,
-          name: user.fullName || user.username || "", // fallback nếu thiếu
+          name: user.fullName || user.username || "", // dùng cho hiển thị bảng
           email: user.email,
           role: user.roles && user.roles.length > 0 ? user.roles[0] : "User",
           status:
             user.enabled && user.accountNonLocked
               ? "Hoạt động"
               : !user.enabled && user.accountNonLocked
-              ? "Chờ duyệt"
-              : user.enabled && !user.accountNonLocked
-              ? "Bị khóa"
-              : "Không hoạt động",
+                ? "Chờ duyệt"
+                : user.enabled && !user.accountNonLocked
+                  ? "Bị khóa"
+                  : "Không hoạt động",
           createdAt: user.createdAt
             ? new Date(user.createdAt).toLocaleDateString("vi-VN")
             : "",
@@ -252,10 +255,10 @@ const UserListPage = () => {
           user.enabled && user.accountNonLocked
             ? 'Hoạt động'
             : !user.enabled && user.accountNonLocked
-            ? 'Chờ duyệt'
-            : user.enabled && !user.accountNonLocked
-            ? 'Bị khóa'
-            : 'Không hoạt động',
+              ? 'Chờ duyệt'
+              : user.enabled && !user.accountNonLocked
+                ? 'Bị khóa'
+                : 'Không hoạt động',
         createdAt: user.createdAt
           ? new Date(user.createdAt).toLocaleDateString('vi-VN')
           : '',
@@ -465,7 +468,10 @@ const UserListPage = () => {
                       scope="col"
                       className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Thao tác
+                      <span className="inline-flex items-center">
+                        <i className="fas fa-eye text-blue-500 mr-2"></i>
+                        Thao tác
+                      </span>
                     </th>
                   </tr>
                 </thead>
@@ -493,31 +499,28 @@ const UserListPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.role === "Admin"
-                              ? "bg-purple-100 text-purple-800"
-                              : user.role === "Quản lý"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === "Admin"
+                            ? "bg-purple-100 text-purple-800"
+                            : user.role === "Quản lý"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                            }`}
                         >
                           {user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.status === "Hoạt động"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === "Hoạt động"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                            }`}
                         >
                           <span
-                            className={`h-2 w-2 rounded-full mr-1 ${
-                              user.status === "Hoạt động"
-                                ? "bg-green-400"
-                                : "bg-red-400"
-                            }`}
+                            className={`h-2 w-2 rounded-full mr-1 ${user.status === "Hoạt động"
+                              ? "bg-green-400"
+                              : "bg-red-400"
+                              }`}
                           ></span>
                           {user.status}
                         </span>
@@ -527,18 +530,18 @@ const UserListPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                          onClick={() => handleOpenPermissionModal(user.id)}
-                          className="text-blue-600 hover:text-blue-900 mr-3 cursor-pointer"
+                          className="text-blue-500 hover:text-blue-700 mr-3 cursor-pointer"
+                          title="Xem chi tiết"
+                          onClick={() => { setSelectedDetailUser(users.find(u => u.id === user.id)); setShowDetailModal(true); }}
                         >
-                          <i className="fas fa-user-shield mr-1"></i>
-                          Phân quyền
+                          <i className="fas fa-eye"></i>
                         </button>
                         <button
-                          className={`${user.status === "Bị khóa" ? "text-green-600 hover:text-green-900" : "text-yellow-600 hover:text-yellow-900"} mr-3 cursor-pointer`}
-                          onClick={() => handleToggleBanUser(user)}
+                          onClick={() => handleOpenPermissionModal(user.id)}
+                          className="text-yellow-600 hover:text-yellow-700 font-semibold mr-3 cursor-pointer"
                         >
-                          <i className={`fas ${user.status === "Bị khóa" ? "fa-unlock" : "fa-user-slash"} mr-1`}></i>
-                          {user.status === "Bị khóa" ? "Mở ban" : "Ban"}
+                          <i className="fas fa-user-shield mr-1 text-yellow-500"></i>
+                          Phân quyền
                         </button>
                         <button
                           className="text-red-600 hover:text-red-900 cursor-pointer"
@@ -609,11 +612,10 @@ const UserListPage = () => {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`relative inline-flex items-center px-4 py-2 border ${
-                              currentPage === page
-                                ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-                            } text-sm font-medium cursor-pointer`}
+                            className={`relative inline-flex items-center px-4 py-2 border ${currentPage === page
+                              ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                              : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                              } text-sm font-medium cursor-pointer`}
                           >
                             {page}
                           </button>
@@ -772,6 +774,47 @@ const UserListPage = () => {
                     onClick={() => setShowCreateModal(false)}
                   >
                     Hủy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal xem chi tiết user */}
+        {showDetailModal && selectedDetailUser && (
+          <div className="fixed z-20 inset-0 overflow-y-auto">
+            <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              </div>
+              <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+              <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <div className="bg-white px-6 pt-6 pb-4">
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={selectedDetailUser.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(selectedDetailUser.fullName || selectedDetailUser.username || 'U') + '&background=random'}
+                      alt={selectedDetailUser.fullName || selectedDetailUser.username}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-blue-200 mb-4"
+                    />
+                    <h2 className="text-xl font-bold text-gray-800 mb-1">{selectedDetailUser.fullName || 'Chưa cập nhật'}</h2>
+                    <p className="text-gray-500 mb-2">Username: <span className="font-medium text-gray-700">{selectedDetailUser.username || 'Chưa cập nhật'}</span></p>
+                    <div className="w-full mt-2 space-y-2">
+                      <div className="flex items-center"><i className="fas fa-envelope text-blue-400 w-6"></i><span className="ml-2">{selectedDetailUser.email || 'Chưa cập nhật'}</span></div>
+                      <div className="flex items-center"><i className="fas fa-user text-blue-400 w-6"></i><span className="ml-2">{selectedDetailUser.fullName || 'Chưa cập nhật'}</span></div>
+                      <div className="flex items-center"><i className="fas fa-map-marker-alt text-blue-400 w-6"></i><span className="ml-2">{selectedDetailUser.address || 'Chưa cập nhật'}</span></div>
+                      <div className="flex items-center"><i className="fas fa-phone text-blue-400 w-6"></i><span className="ml-2">{selectedDetailUser.phone || selectedDetailUser.phoneNumber || 'Chưa cập nhật'}</span></div>
+                      <div className="flex items-center"><i className="fas fa-calendar-alt text-blue-400 w-6"></i><span className="ml-2">{selectedDetailUser.createdAt ? (new Date(selectedDetailUser.createdAt).toLocaleDateString('vi-VN')) : 'Chưa cập nhật'}</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 px-6 py-3 flex justify-end">
+                  <button
+                    type="button"
+                    className="inline-flex justify-center rounded-button border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm"
+                    onClick={() => setShowDetailModal(false)}
+                  >
+                    Đóng
                   </button>
                 </div>
               </div>
