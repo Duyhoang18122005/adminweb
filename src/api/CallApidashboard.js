@@ -8,10 +8,25 @@ export const fetchOrderStats = async () => {
                 Authorization: `Bearer ${token}`,
             },
         });
-        // Lấy tổng số đơn hàng từ response
-        return response.data.totalOrders;
+        // Trả về toàn bộ object chứa các thống kê
+        return response.data;
     } catch (error) {
         console.error('Lỗi khi lấy thống kê đơn hàng:', error);
         return null;
+    }
+};
+
+export const fetchOrderSummary = async () => {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await axios.get('/orders/summary', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Lỗi khi lấy danh sách đơn hàng:', error);
+        return [];
     }
 };

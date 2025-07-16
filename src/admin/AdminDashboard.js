@@ -177,20 +177,26 @@ const AdminDashboard = () => {
     })
       .then(res => setUserGrowth(res.data))
       .catch(() => setUserGrowth(null));
-    // Sử dụng API mới để lấy tổng đơn hàng
+    // Sử dụng API mới để lấy tổng đơn hàng và tổng doanh thu
     fetchOrderStats()
-      .then(total => setOrderCount(Number(total)))
-      .catch(() => setOrderCount('N/A'));
+      .then(stats => {
+        if (stats) {
+          setOrderCount(Number(stats.totalOrders));
+          setRevenue(Number(stats.totalRevenue));
+        } else {
+          setOrderCount('N/A');
+          setRevenue('N/A');
+        }
+      })
+      .catch(() => {
+        setOrderCount('N/A');
+        setRevenue('N/A');
+      });
     axios.get('/orders/growth-percent-yesterday', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setOrderGrowth(res.data))
       .catch(() => setOrderGrowth(null));
-    axios.get('/game-players/revenue/total', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => setRevenue(Number(res.data)))
-      .catch(() => setRevenue('N/A'));
     axios.get('/game-players/revenue/growth-percent-yesterday', {
       headers: { Authorization: `Bearer ${token}` }
     })
