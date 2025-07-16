@@ -100,6 +100,10 @@ const Payment = () => {
     }).format(amount);
   };
 
+  // Lọc đơn theo ngày đã chọn cho bảng chi tiết
+  const selectedDate = startDate || todayStr;
+  const filteredOrdersByDate = orders.filter(order => order.date === selectedDate);
+
   return (
     <AdminLayout breadcrumb="Quản lý doanh thu">
       <div className="min-h-screen bg-gray-50">
@@ -373,7 +377,7 @@ const Payment = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedOrders.map((order) => (
+                  {filteredOrdersByDate.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 cursor-pointer">
                         {order.id}
@@ -423,9 +427,9 @@ const Payment = () => {
                   <p className="text-sm text-gray-700">
                     Hiển thị <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> đến{' '}
                     <span className="font-medium">
-                      {Math.min(currentPage * itemsPerPage, filteredOrders.length)}
+                      {Math.min(currentPage * itemsPerPage, filteredOrdersByDate.length)}
                     </span>{' '}
-                    trong <span className="font-medium">{filteredOrders.length}</span> kết quả
+                    trong <span className="font-medium">{filteredOrdersByDate.length}</span> kết quả
                   </p>
                 </div>
                 <div>
