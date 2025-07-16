@@ -1,19 +1,19 @@
-import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom"; // ⬅️ thêm useLocation
-import Header from "../components/Layout/Header";
-import HomePage from "../pages/HomePage";
-import BookingPage from "../pages/BookingPage";
-import BookingSuccess from "../pages/BookingSuccess";
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
-import Profile from "../components/Profiles/Profile";
-import { useUser } from "../contexts/UserContext";
+import { Route, Routes, useLocation } from "react-router-dom"; // ⬅️ thêm useLocation
 import AdminDashboard from "../admin/AdminDashboard";
-import GamerListPage from "../admin/GamerListPage";
-import UserListPage from "../admin/UserListPage";
 import GameListPage from "../admin/GameList";
+import GamerListPage from "../admin/GamerListPage";
 import Order from "../admin/Order";
 import Revenue from "../admin/revenue";
+import RevenueWithdrawDepositPage from "../admin/RevenueWithdrawDepositPage";
+import UserListPage from "../admin/UserListPage";
+import Header from "../components/Layout/Header";
+import Profile from "../components/Profiles/Profile";
+import { useUser } from "../contexts/UserContext";
+import BookingPage from "../pages/BookingPage";
+import BookingSuccess from "../pages/BookingSuccess";
+import HomePage from "../pages/HomePage";
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
 
 function App() {
   const { username, logout } = useUser();
@@ -42,6 +42,7 @@ function App() {
         <Route path="/admin/games" element={<GameListPage />} />
         <Route path="/admin/orders" element={<Order />} />
         <Route path="/admin/revenue" element={<Revenue />} />
+        <Route path="/admin/manage-payment" element={<RevenueWithdrawDepositPage />} />
       </Routes>
     </div>
   );

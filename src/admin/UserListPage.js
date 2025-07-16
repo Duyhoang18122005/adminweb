@@ -469,7 +469,6 @@ const UserListPage = () => {
                       className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       <span className="inline-flex items-center">
-                        <i className="fas fa-eye text-blue-500 mr-2"></i>
                         Thao tác
                       </span>
                     </th>
@@ -542,13 +541,6 @@ const UserListPage = () => {
                         >
                           <i className="fas fa-user-shield mr-1 text-yellow-500"></i>
                           Phân quyền
-                        </button>
-                        <button
-                          className="text-red-600 hover:text-red-900 cursor-pointer"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <i className="fas fa-trash-alt mr-1"></i>
-                          Xóa
                         </button>
                       </td>
                     </tr>

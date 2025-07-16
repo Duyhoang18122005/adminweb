@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const AdminLayout = ({ children }) => {
@@ -67,9 +67,9 @@ const AdminLayout = ({ children }) => {
             </div>
             <div className="relative">
               <div onClick={toggleUserDropdown} className="flex items-center cursor-pointer p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
-                <img 
-                  src="https://readdy.ai/api/search-image?query=professional%20portrait%20of%20a%20Vietnamese%20male%20administrator%20with%20short%20black%20hair%20wearing%20a%20business%20casual%20outfit%2C%20neutral%20expression%2C%20clean%20background%2C%20high%20quality%20professional%20headshot&width=40&height=40&seq=1&orientation=squarish" 
-                  alt="Admin" 
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%20portrait%20of%20a%20Vietnamese%20male%20administrator%20with%20short%20black%20hair%20wearing%20a%20business%20casual%20outfit%2C%20neutral%20expression%2C%20clean%20background%2C%20high%20quality%20professional%20headshot&width=40&height=40&seq=1&orientation=squarish"
+                  alt="Admin"
                   className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500"
                 />
                 <span className={`ml-2 font-medium hidden md:block ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -124,15 +124,15 @@ const AdminLayout = ({ children }) => {
                   <i className="fas fa-receipt w-6 text-center"></i>
                   <span className="ml-3">Quản lý đơn hàng</span>
                 </Link>
-                <Link to="/admin/revenue" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/revenue') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}> 
+                <Link to="/admin/revenue" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/revenue') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>
                   <i className="fas fa-credit-card w-6 text-center"></i>
                   <span className="ml-3">Quản lý doanh thu</span>
                 </Link>
-                <Link to="/admin/deposit" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/deposit') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}> 
+                <Link to="/admin/manage-payment" className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg ${isActive('/admin/manage-payment') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white' : darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-700'}`}>
                   <i className="fas fa-wallet w-6 text-center"></i>
                   <span className="ml-3">Quản lý nạp tiền,rút tiền</span>
                 </Link>
-                
+
               </div>
               {/* Thêm các mục sidebar khác tương tự ở đây */}
             </div>
