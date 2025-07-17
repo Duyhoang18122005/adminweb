@@ -1,7 +1,7 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 
 import { useEffect, useState } from 'react';
-import { fetchReports } from '../api/CallApiReport';
+import { banPlayerById, fetchReports, unbanPlayerById, updateReportStatus } from '../api/CallApiReport';
 import AdminLayout from './AdminLayout';
 
 /**
@@ -23,6 +23,15 @@ const Report = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [reports, setReports] = useState([]);
+  const [showBanModal, setShowBanModal] = useState(false);
+  const [banReason, setBanReason] = useState('');
+  const [banDescription, setBanDescription] = useState('');
+  const [banTargetId, setBanTargetId] = useState(null);
+  const [banLoading, setBanLoading] = useState(false);
+  const [banError, setBanError] = useState('');
+  const [banStatus, setBanStatus] = useState('RESOLVED');
+  const [banResolution, setBanResolution] = useState('Đã xử lý vi phạm');
+  const [unbanningIds, setUnbanningIds] = useState([]);
 
   useEffect(() => {
     const getReports = async () => {
@@ -47,6 +56,54 @@ const Report = () => {
   const handleViewDetail = (report) => {
     setSelectedReport(report);
     setShowModal(true);
+  };
+
+  const handleBanClick = (report) => {
+    setBanTargetId(report.raw.reportedPlayer?.id || report.raw.reportedPlayer?.user?.id);
+    setBanReason('');
+    setBanDescription('');
+    setBanError('');
+    setBanStatus('RESOLVED');
+    setBanResolution('Đã xử lý vi phạm');
+    setSelectedReport(report); // để lấy id report
+    setShowBanModal(true);
+  };
+
+  const handleBanConfirm = async () => {
+    if (!banReason.trim()) {
+      setBanError('Vui lòng nhập lý do ban.');
+      return;
+    }
+    if (!banStatus) {
+      setBanError('Vui lòng chọn trạng thái.');
+      return;
+    }
+    setBanLoading(true);
+    setBanError('');
+    try {
+      await banPlayerById(banTargetId, banReason, banDescription);
+      await updateReportStatus(selectedReport.id, banStatus, banResolution);
+      setShowBanModal(false);
+      setBanLoading(false);
+      // Optionally, refresh reports or update status
+      window.location.reload();
+    } catch (e) {
+      setBanError('Có lỗi xảy ra khi ban người chơi hoặc cập nhật trạng thái báo cáo.');
+      setBanLoading(false);
+    }
+  };
+
+  const handleUnban = async (report) => {
+    const playerId = report.raw.reportedPlayer?.id || report.raw.reportedPlayer?.user?.id;
+    setUnbanningIds((prev) => [...prev, playerId]);
+    try {
+      await unbanPlayerById(playerId);
+      // Optionally, update UI or reload
+      // window.location.reload();
+      // Cập nhật trạng thái icon sang xám bằng cách giữ playerId trong unbanningIds
+    } catch (e) {
+      // Xử lý lỗi nếu cần
+    }
   };
 
   const getStatusColor = (status) => {
@@ -177,13 +234,23 @@ const Report = () => {
                         </button>
                         {report.status === 'pending' && (
                           <>
-                            <button className="text-yellow-600 hover:text-yellow-900 !rounded-button whitespace-nowrap cursor-pointer">
+                            <button className="text-yellow-600 hover:text-yellow-900 !rounded-button whitespace-nowrap cursor-pointer" onClick={() => handleBanClick(report)}>
                               <i className="fas fa-ban mr-1"></i> Ban
                             </button>
                             <button className="text-red-600 hover:text-red-900 !rounded-button whitespace-nowrap cursor-pointer">
                               <i className="fas fa-times mr-1"></i> Bỏ qua
                             </button>
                           </>
+                        )}
+                        {report.status === 'resolved' && (
+                          <button
+                            className={`!rounded-button whitespace-nowrap cursor-pointer ${unbanningIds.includes(report.raw.reportedPlayer?.id || report.raw.reportedPlayer?.user?.id) ? 'text-gray-400' : 'text-yellow-500 hover:text-yellow-700'}`}
+                            onClick={() => handleUnban(report)}
+                            disabled={unbanningIds.includes(report.raw.reportedPlayer?.id || report.raw.reportedPlayer?.user?.id)}
+                            title="Unban người chơi"
+                          >
+                            <i className="fas fa-undo mr-1"></i> Unban
+                          </button>
                         )}
                       </div>
                     </td>
@@ -303,6 +370,107 @@ const Report = () => {
                       onClick={() => setShowModal(false)}
                     >
                       Đóng
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ban Modal */}
+          {showBanModal && (
+            <div className="fixed z-20 inset-0 overflow-y-auto">
+              <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                  <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                </div>
+                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                          Ban người chơi
+                        </h3>
+                        <div className="mt-2 space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Lý do ban <span className="text-red-500">*</span></label>
+                            <input
+                              type="text"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900"
+                              value={banReason}
+                              onChange={e => setBanReason(e.target.value)}
+                              placeholder="Nhập lý do ban..."
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Mô tả chi tiết</label>
+                            <textarea
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900"
+                              value={banDescription}
+                              onChange={e => setBanDescription(e.target.value)}
+                              placeholder="Nhập mô tả chi tiết (nếu có)..."
+                              rows={3}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Trạng thái xử lý <span className="text-red-500">*</span></label>
+                            <div className="flex gap-4 mt-1">
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="radio"
+                                  className="form-radio text-yellow-500"
+                                  name="banStatus"
+                                  value="RESOLVED"
+                                  checked={banStatus === 'RESOLVED'}
+                                  onChange={() => setBanStatus('RESOLVED')}
+                                />
+                                <span className="ml-2">Đã xử lý vi phạm</span>
+                              </label>
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="radio"
+                                  className="form-radio text-red-500"
+                                  name="banStatus"
+                                  value="REJECTED"
+                                  checked={banStatus === 'REJECTED'}
+                                  onChange={() => setBanStatus('REJECTED')}
+                                />
+                                <span className="ml-2">Bỏ qua</span>
+                              </label>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Nội dung xử lý</label>
+                            <input
+                              type="text"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900"
+                              value={banResolution}
+                              onChange={e => setBanResolution(e.target.value)}
+                              placeholder="Nhập nội dung xử lý..."
+                            />
+                          </div>
+                          {banError && <div className="text-red-500 text-sm">{banError}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button
+                      type="button"
+                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-500 text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 sm:ml-3 sm:w-auto sm:text-sm cursor-pointer !rounded-button whitespace-nowrap"
+                      onClick={handleBanConfirm}
+                      disabled={banLoading}
+                    >
+                      {banLoading ? 'Đang xử lý...' : 'Xác nhận Ban & Cập nhật trạng thái'}
+                    </button>
+                    <button
+                      type="button"
+                      className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-pointer !rounded-button whitespace-nowrap"
+                      onClick={() => setShowBanModal(false)}
+                      disabled={banLoading}
+                    >
+                      Hủy
                     </button>
                   </div>
                 </div>
