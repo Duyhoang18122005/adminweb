@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPlayers } from "../../api/playerApi"; // 🔁 Import API
+import { getAvatarUrl } from "../../utils/imageUtils";
 
 function FeaturedGamers({ games, activeFilter, setActiveFilter, renderStars }) {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function FeaturedGamers({ games, activeFilter, setActiveFilter, renderStars }) {
         const mapped = data.map((p) => ({
           id: p.userId || p.id,
           name: p.username,
-          avatar: `https://i.pravatar.cc/100?u=${p.username}`, // dùng avatar ngẫu nhiên
+          avatar: getAvatarUrl(p.avatarUrl, `https://i.pravatar.cc/100?u=${p.username}`), // dùng avatar từ backend hoặc fallback
           game: games?.find((g) => g.id === p.gameId)?.name || "Unknown",
           rating: 4.9, // tạm mock, backend chưa có
           price: `${p.pricePerHour}.000đ`,

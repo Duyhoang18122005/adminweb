@@ -6,6 +6,7 @@ import AdminLayout from './AdminLayout'; // Adjust the import path as necessary
 // Order object structure is described in the sampleOrders array below
 
 import axiosInstance from '../api/axiosConfig';
+import { getAvatarUrl } from '../utils/imageUtils';
 
 function Order() {
   // State variables
@@ -249,7 +250,12 @@ function Order() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <img className="h-10 w-10 rounded-full object-cover" src={order.renterAvatarUrl || '/default-avatar.png'} alt={order.renterName} />
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={getAvatarUrl(order.renterAvatarUrl, order.renterId)}
+                              alt={order.renterName}
+                              onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                            />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{order.renterName}</div>
@@ -259,7 +265,12 @@ function Order() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <img className="h-10 w-10 rounded-full object-cover" src={order.playerAvatarUrl || '/default-avatar.png'} alt={order.playerName} />
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={getAvatarUrl(order.playerAvatarUrl, order.playerId)}
+                              alt={order.playerName}
+                              onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                            />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{order.playerName}</div>
@@ -401,7 +412,12 @@ function Order() {
             ) : orderDetail ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-4 mb-2">
-                  <img src={orderDetail.playerAvatarUrl || '/default-avatar.png'} alt="avatar" className="w-16 h-16 rounded-full border-2 border-indigo-400 object-cover" />
+                  <img
+                    src={getAvatarUrl(orderDetail.playerAvatarUrl, orderDetail.playerId)}
+                    alt="avatar"
+                    className="w-16 h-16 rounded-full border-2 border-indigo-400 object-cover"
+                    onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                  />
                   <div>
                     <div className="text-lg font-semibold text-gray-800">{orderDetail.playerName}</div>
                     <div className="text-sm text-gray-500">Game thủ</div>

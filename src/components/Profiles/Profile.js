@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from '../../api/axiosConfig';
+import { getAvatarUrl } from '../../utils/imageUtils';
 
 import ProfileHeader from './ProfileHeader';
 import AboutSection from './AboutSection';
@@ -25,7 +26,7 @@ function Profile() {
         setGamer({
           id: data.id,
           name: data.user?.fullName || data.username,
-          avatar: data.user?.avatarUrl || `https://i.pravatar.cc/150?u=${data.username}`,
+          avatar: getAvatarUrl(data.user?.avatarUrl, `https://i.pravatar.cc/150?u=${data.username}`),
           game: data.game?.name || '',
           gameDescription: data.game?.description || '',
           rank: data.rank,

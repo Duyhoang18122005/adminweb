@@ -378,6 +378,7 @@ const GameListPage = () => {
                           className="h-10 w-10 rounded-full object-cover"
                           src={game.imageUrl}
                           alt={game.name}
+                          onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                         />
                       </div>
                       <div className="ml-4">
@@ -487,6 +488,7 @@ const GameListPage = () => {
                     src={game.imageUrl}
                     alt={game.name}
                     className="w-full h-full object-cover object-top"
+                    onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                   />
                   <div className="absolute top-2 right-2">
                     <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { fetchTopupUsers } from '../api/CallApiManagePayment';
 import AdminLayout from './AdminLayout';
+import { getAvatarUrl } from '../utils/imageUtils';
 
 const RevenueWithdrawDepositPage = () => {
   // State for active tab
@@ -26,7 +27,7 @@ const RevenueWithdrawDepositPage = () => {
         // Chuyển đổi dữ liệu API sang format bảng cũ
         const mapped = data.map(item => ({
           id: item.id,
-          user: { name: item.fullName, avatar: item.avatarUrl },
+          user: { name: item.fullName, avatar: getAvatarUrl(item.avatarUrl, item.id) },
           accountType: 'Người chơi',
           date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
           amount: item.coin.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }),
@@ -333,6 +334,7 @@ const RevenueWithdrawDepositPage = () => {
                                     className="h-8 w-8 rounded-full object-cover"
                                     src={order.user.avatar}
                                     alt={order.user.name}
+                                    onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                                   />
                                 </div>
                                 <div className="ml-3">
@@ -512,6 +514,7 @@ const RevenueWithdrawDepositPage = () => {
                                     className="h-8 w-8 rounded-full object-cover"
                                     src={order.user.avatar}
                                     alt={order.user.name}
+                                    onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                                   />
                                 </div>
                                 <div className="ml-3">
@@ -596,6 +599,7 @@ const RevenueWithdrawDepositPage = () => {
                 src={selectedDepositOrder.user?.avatar}
                 alt={selectedDepositOrder.user?.name}
                 className="w-24 h-24 rounded-full object-cover border-4 border-indigo-100 shadow mb-4"
+                onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
               />
               <h2 className="text-2xl font-bold text-indigo-700 mb-2">{selectedDepositOrder.user?.name}</h2>
               <div className="w-full mt-2">

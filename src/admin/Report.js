@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { banPlayerById, fetchReports, unbanPlayerById, updateReportStatus } from '../api/CallApiReport';
 import AdminLayout from './AdminLayout';
+import { getAvatarUrl } from '../utils/imageUtils';
 
 /**
  * @typedef {Object} Report
@@ -40,9 +41,9 @@ const Report = () => {
       const mapped = data.map((item) => ({
         id: item.id,
         reporter: item.reporter?.username || '',
-        reporterAvatar: item.reporter?.avatarUrl || item.reporter?.profileImageUrl || DEFAULT_AVATAR,
+        reporterAvatar: getAvatarUrl(item.reporter?.avatarUrl, item.reporter?.id),
         reportedUser: item.reportedPlayer?.user?.username || '',
-        reportedUserAvatar: item.reportedPlayer?.user?.avatarUrl || item.reportedPlayer?.user?.profileImageUrl || DEFAULT_AVATAR,
+        reportedUserAvatar: getAvatarUrl(item.reportedPlayer?.user?.avatarUrl, item.reportedPlayer?.user?.id),
         content: item.reason + (item.description ? `: ${item.description}` : ''),
         time: item.createdAt ? new Date(item.createdAt).toLocaleString() : '',
         status: item.status ? item.status.toLowerCase() : 'pending',
@@ -207,13 +208,23 @@ const Report = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center gap-2">
-                        <img src={report.reporterAvatar} alt="avatar" className="w-8 h-8 rounded-full object-cover border" />
+                        <img
+                          src={report.reporterAvatar}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover border"
+                          onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                        />
                         <span>{report.reporter}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center gap-2">
-                        <img src={report.reportedUserAvatar} alt="avatar" className="w-8 h-8 rounded-full object-cover border" />
+                        <img
+                          src={report.reportedUserAvatar}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover border"
+                          onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                        />
                         <span>{report.reportedUser}</span>
                       </div>
                     </td>

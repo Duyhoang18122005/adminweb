@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getAvatarUrl } from "../utils/imageUtils";
 
 import { featuredGamers } from "../data/MockData";
 function BookingPage() {
@@ -118,7 +119,7 @@ function BookingPage() {
           <section className="bg-gray-800 rounded-xl p-6 mb-8 shadow-lg">
             <div className="flex flex-col md:flex-row items-center">
               <img
-                src={gamer.avatar}
+                src={getAvatarUrl(gamer.avatar)}
                 alt={gamer.name}
                 className="w-40 h-40 rounded-xl object-cover border-2 border-purple-500 mb-4 md:mb-0"
               />

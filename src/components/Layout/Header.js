@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { getAvatarUrl } from "../../utils/imageUtils";
 
 function Header({ isLoggedIn, username, avatarUrl, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -58,7 +59,7 @@ function Header({ isLoggedIn, username, avatarUrl, onLogout }) {
     }, 300);
   };
 
-  const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  const defaultAvatar = "https://ui-avatars.com/api/?name=User&background=random";
 
   return (
     <header className="bg-gray-800 shadow-lg relative z-50">
@@ -117,7 +118,7 @@ function Header({ isLoggedIn, username, avatarUrl, onLogout }) {
                 type="button"
               >
                 <img
-                  src={avatarUrl || defaultAvatar}
+                  src={getAvatarUrl(avatarUrl, defaultAvatar)}
                   alt="User Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -138,7 +139,7 @@ function Header({ isLoggedIn, username, avatarUrl, onLogout }) {
                   <div className="p-4 border-b border-gray-700">
                     <div className="flex items-center">
                       <img
-                        src={avatarUrl || defaultAvatar}
+                        src={getAvatarUrl(avatarUrl, defaultAvatar)}
                         className="w-10 h-10 rounded-full mr-3  border-2 border-purple-500"
                         alt="avatar"
                       />

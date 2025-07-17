@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosConfig';
 import AdminLayout from './AdminLayout';
+import { getAvatarUrl } from '../utils/imageUtils';
 
 const GamerListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -476,7 +477,12 @@ const GamerListPage = () => {
                         <tr key={idx} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <img className="h-10 w-10 rounded-full object-cover" src={gamer.avatarUrl || '/default-avatar.png'} alt="avatar" />
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={getAvatarUrl(gamer.avatarUrl, gamer.id)}
+                                alt="avatar"
+                                onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                              />
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{gamer.fullName || "Không rõ"}</div>
                                 <div className="text-sm text-gray-500">{gamer.email}</div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { fetchOrderStats, fetchOrderSummary } from '../api/CallApidashboard';
 import AdminLayout from './AdminLayout';
+import { getAvatarUrl } from '../utils/imageUtils';
 
 const Payment = () => {
   const [timeFilter, setTimeFilter] = useState('today');
@@ -402,7 +403,12 @@ const Payment = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <img src={order.renterAvatarUrl} alt={order.renterName} className="h-8 w-8 rounded-full object-cover" />
+                          <img
+                            src={getAvatarUrl(order.renterAvatarUrl, order.renterId)}
+                            alt={order.renterName}
+                            className="h-8 w-8 rounded-full object-cover"
+                            onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                          />
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">{order.renterName}</div>
                           </div>
@@ -410,7 +416,12 @@ const Payment = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <img src={order.playerAvatarUrl} alt={order.playerName} className="h-8 w-8 rounded-full object-cover" />
+                          <img
+                            src={getAvatarUrl(order.playerAvatarUrl, order.playerId)}
+                            alt={order.playerName}
+                            className="h-8 w-8 rounded-full object-cover"
+                            onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                          />
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">{order.playerName}</div>
                           </div>

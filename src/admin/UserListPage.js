@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import axios from "../api/axiosConfig";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "./AdminLayout";
+import axios from "../api/axiosConfig";
+import { getAvatarUrl } from "../utils/imageUtils";
 
 const UserListPage = () => {
   // Dữ liệu người dùng mẫu
@@ -82,8 +83,7 @@ const UserListPage = () => {
           createdAt: user.createdAt
             ? new Date(user.createdAt).toLocaleDateString("vi-VN")
             : "",
-          avatar: user.avatarUrl ||
-            "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.fullName || user.username || "U") + "&background=random",
+          avatar: getAvatarUrl(user.avatarUrl, user.id),
         }));
         setUsers(apiUsers);
       } catch (err) {
@@ -262,9 +262,7 @@ const UserListPage = () => {
         createdAt: user.createdAt
           ? new Date(user.createdAt).toLocaleDateString('vi-VN')
           : '',
-        avatar:
-          user.avatarUrl ||
-          'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.fullName || user.username || 'U') + '&background=random',
+        avatar: getAvatarUrl(user.avatarUrl, user.id),
       }));
       setUsers(apiUsers);
     } catch (err) {
@@ -484,6 +482,7 @@ const UserListPage = () => {
                               className="h-10 w-10 rounded-full object-cover"
                               src={user.avatar}
                               alt={user.name}
+                              onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                             />
                           </div>
                           <div className="ml-4">
@@ -785,9 +784,10 @@ const UserListPage = () => {
                 <div className="bg-white px-6 pt-6 pb-4">
                   <div className="flex flex-col items-center">
                     <img
-                      src={selectedDetailUser.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(selectedDetailUser.fullName || selectedDetailUser.username || 'U') + '&background=random'}
+                      src={getAvatarUrl(selectedDetailUser.avatar, selectedDetailUser.id)}
                       alt={selectedDetailUser.fullName || selectedDetailUser.username}
                       className="w-24 h-24 rounded-full object-cover border-4 border-blue-200 mb-4"
+                      onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
                     />
                     <h2 className="text-xl font-bold text-gray-800 mb-1">{selectedDetailUser.fullName || 'Chưa cập nhật'}</h2>
                     <p className="text-gray-500 mb-2">Username: <span className="font-medium text-gray-700">{selectedDetailUser.username || 'Chưa cập nhật'}</span></p>

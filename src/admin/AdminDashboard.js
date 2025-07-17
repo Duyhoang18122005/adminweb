@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../api/axiosConfig';
 import { fetchOrderStats } from '../api/CallApidashboard';
 import AdminLayout from "./AdminLayout";
+import { getAvatarUrl } from '../utils/imageUtils';
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -509,11 +510,12 @@ const AdminDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          <img
-                            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || user.email)}&background=random`}
-                            alt={user.fullName}
-                            className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                          />
+                                                      <img
+                              src={getAvatarUrl(user.avatarUrl, user.id)}
+                              alt={user.fullName}
+                              className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                              onError={e => { e.target.onerror = null; e.target.src = '/images/avata1.jpg'; }}
+                            />
                         </div>
                         <div className="ml-4">
                           <div className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{user.fullName}</div>
