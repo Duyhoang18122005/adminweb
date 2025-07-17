@@ -1,7 +1,7 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 
 import { useEffect, useState } from 'react';
-import { fetchTopupUsers } from '../api/CallApiManagePayment';
+import { fetchTopupUsers, fetchWithdrawUsers } from '../api/CallApiManagePayment';
 import AdminLayout from './AdminLayout';
 import { getAvatarUrl } from '../utils/imageUtils';
 
@@ -18,13 +18,16 @@ const RevenueWithdrawDepositPage = () => {
   const [selectAllWithdraws, setSelectAllWithdraws] = useState(false);
   const [depositOrders, setDepositOrders] = useState([]);
   const [selectedDepositOrder, setSelectedDepositOrder] = useState(null);
+  const [withdrawOrders, setWithdrawOrders] = useState([]);
+  const [selectedWithdrawOrder, setSelectedWithdrawOrder] = useState(null);
+  const [showWithdrawDetail, setShowWithdrawDetail] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Fetch deposit orders
+    const fetchDepositData = async () => {
       try {
         const token = localStorage.getItem('token');
         const data = await fetchTopupUsers(token);
-        // Chuyển đổi dữ liệu API sang format bảng cũ
         const mapped = data.map(item => ({
           id: item.id,
           user: { name: item.fullName, avatar: getAvatarUrl(item.avatarUrl, item.id) },
@@ -41,57 +44,30 @@ const RevenueWithdrawDepositPage = () => {
         setDepositOrders([]);
       }
     };
-    fetchData();
+    // Fetch withdraw orders
+    const fetchWithdrawData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const data = await fetchWithdrawUsers(token);
+        const mapped = data.map(item => ({
+          id: item.id,
+          user: { name: item.fullName, avatar: getAvatarUrl(item.avatarUrl, item.id) },
+          accountType: item.accountType || 'Người chơi',
+          date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
+          amount: item.coin.toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }),
+          status: item.status === 'COMPLETED' ? 'processed' : (item.status === 'PENDING' ? 'pending' : 'rejected'),
+          actions: ['view'],
+          phoneNumber: item.phoneNumber,
+          method: item.method,
+        }));
+        setWithdrawOrders(mapped);
+      } catch (err) {
+        setWithdrawOrders([]);
+      }
+    };
+    fetchDepositData();
+    fetchWithdrawData();
   }, []);
-
-  // Sample data for withdraw orders
-  const withdrawOrders = [
-    {
-      id: 'WD001',
-      user: { name: 'Trần Thị B', avatar: 'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20young%20asian%20woman%20with%20long%20black%20hair%20and%20friendly%20smile%2C%20minimalist%20white%20background%2C%20high%20quality%20professional%20headshot&width=100&height=100&seq=2&orientation=squarish' },
-      accountType: 'Game thủ',
-      date: '03/07/2025',
-      amount: '500.000₫',
-      status: 'pending',
-      actions: ['view', 'approve', 'reject']
-    },
-    {
-      id: 'WD002',
-      user: { name: 'Lê Văn C', avatar: 'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20middle%20aged%20asian%20man%20with%20glasses%20and%20friendly%20smile%2C%20minimalist%20white%20background%2C%20high%20quality%20professional%20headshot&width=100&height=100&seq=3&orientation=squarish' },
-      accountType: 'Người chơi',
-      date: '02/07/2025',
-      amount: '100.000₫',
-      status: 'processed',
-      actions: ['view']
-    },
-    {
-      id: 'WD003',
-      user: { name: 'Phạm Thị D', avatar: 'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20young%20asian%20woman%20with%20short%20black%20hair%20and%20friendly%20smile%2C%20minimalist%20white%20background%2C%20high%20quality%20professional%20headshot&width=100&height=100&seq=4&orientation=squarish' },
-      accountType: 'Game thủ',
-      date: '01/07/2025',
-      amount: '800.000₫',
-      status: 'rejected',
-      actions: ['view']
-    },
-    {
-      id: 'WD004',
-      user: { name: 'Hoàng Văn E', avatar: 'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20young%20asian%20man%20with%20stylish%20haircut%20and%20confident%20expression%2C%20minimalist%20white%20background%2C%20high%20quality%20professional%20headshot&width=100&height=100&seq=5&orientation=squarish' },
-      accountType: 'Người chơi',
-      date: '30/06/2025',
-      amount: '250.000₫',
-      status: 'pending',
-      actions: ['view', 'approve', 'reject']
-    },
-    {
-      id: 'WD005',
-      user: { name: 'Ngô Thị F', avatar: 'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20middle%20aged%20asian%20woman%20with%20elegant%20hairstyle%20and%20warm%20smile%2C%20minimalist%20white%20background%2C%20high%20quality%20professional%20headshot&width=100&height=100&seq=6&orientation=squarish' },
-      accountType: 'Game thủ',
-      date: '29/06/2025',
-      amount: '650.000₫',
-      status: 'processed',
-      actions: ['view']
-    }
-  ];
 
   // Filter deposit orders based on status and search
   const filteredDepositOrders = depositOrders.filter(order => {
@@ -161,28 +137,54 @@ const RevenueWithdrawDepositPage = () => {
   };
 
   // Get status badge color and text
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'processed':
-        return {
-          color: 'bg-green-100 text-green-800',
-          text: 'Đã xử lý'
-        };
-      case 'pending':
-        return {
-          color: 'bg-orange-100 text-orange-800',
-          text: 'Đang chờ'
-        };
-      case 'rejected':
-        return {
-          color: 'bg-red-100 text-red-800',
-          text: 'không thành công'
-        };
-      default:
-        return {
-          color: 'bg-gray-100 text-gray-800',
-          text: 'Không xác định'
-        };
+  const getStatusBadge = (status, tab) => {
+    if (tab === 'withdraw') {
+      switch (status) {
+        case 'processed':
+          return {
+            color: 'bg-green-100 text-green-800',
+            text: 'Đã rút'
+          };
+        case 'pending':
+          return {
+            color: 'bg-orange-100 text-orange-800',
+            text: 'Đang chờ'
+          };
+        case 'rejected':
+          return {
+            color: 'bg-red-100 text-red-800',
+            text: 'không thành công'
+          };
+        default:
+          return {
+            color: 'bg-gray-100 text-gray-800',
+            text: 'Không xác định'
+          };
+      }
+    } else {
+      // Nạp tiền giữ nguyên
+      switch (status) {
+        case 'processed':
+          return {
+            color: 'bg-green-100 text-green-800',
+            text: 'Đã xử lý'
+          };
+        case 'pending':
+          return {
+            color: 'bg-orange-100 text-orange-800',
+            text: 'Đang chờ'
+          };
+        case 'rejected':
+          return {
+            color: 'bg-red-100 text-red-800',
+            text: 'không thành công'
+          };
+        default:
+          return {
+            color: 'bg-gray-100 text-gray-800',
+            text: 'Không xác định'
+          };
+      }
     }
   };
 
@@ -313,7 +315,7 @@ const RevenueWithdrawDepositPage = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredDepositOrders.map((order) => {
-                        const statusBadge = getStatusBadge(order.status);
+                        const statusBadge = getStatusBadge(order.status, 'deposit');
                         return (
                           <tr key={order.id} className="hover:bg-gray-50">
                             <td className="px-4 py-4 whitespace-nowrap">
@@ -368,10 +370,6 @@ const RevenueWithdrawDepositPage = () => {
                                 >
                                   <i className="fas fa-eye"></i>
                                 </button>
-
-                                {order.status === 'pending' && (
-                                  <></>
-                                )}
                               </div>
                             </td>
                           </tr>
@@ -491,7 +489,7 @@ const RevenueWithdrawDepositPage = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredWithdrawOrders.map((order) => {
-                        const statusBadge = getStatusBadge(order.status);
+                        const statusBadge = getStatusBadge(order.status, 'withdraw');
                         const statusText = order.status === 'processed' ? 'Đã chuyển' : statusBadge.text;
 
                         return (
@@ -544,26 +542,10 @@ const RevenueWithdrawDepositPage = () => {
                                 <button
                                   className="text-gray-600 hover:text-gray-900 cursor-pointer"
                                   title="Xem chi tiết"
+                                  onClick={() => { setSelectedWithdrawOrder(order); setShowWithdrawDetail(true); }}
                                 >
                                   <i className="fas fa-eye"></i>
                                 </button>
-
-                                {order.status === 'pending' && (
-                                  <>
-                                    <button
-                                      className="text-green-600 hover:text-green-900 cursor-pointer"
-                                      title="Duyệt đơn"
-                                    >
-                                      <i className="fas fa-check"></i>
-                                    </button>
-                                    <button
-                                      className="text-red-600 hover:text-red-900 cursor-pointer"
-                                      title="Từ chối"
-                                    >
-                                      <i className="fas fa-times"></i>
-                                    </button>
-                                  </>
-                                )}
                               </div>
                             </td>
                           </tr>
@@ -629,6 +611,26 @@ const RevenueWithdrawDepositPage = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal hiển thị chi tiết đơn rút tiền */}
+      {showWithdrawDetail && selectedWithdrawOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={() => setShowWithdrawDetail(false)}>
+              &times;
+            </button>
+            <h2 className="text-xl font-bold mb-4">Chi tiết đơn rút tiền</h2>
+            <div className="mb-2"><b>Mã đơn:</b> {selectedWithdrawOrder.id}</div>
+            <div className="mb-2"><b>Người rút:</b> {selectedWithdrawOrder.user?.name}</div>
+            <div className="mb-2"><b>Loại tài khoản:</b> {selectedWithdrawOrder.accountType}</div>
+            <div className="mb-2"><b>Ngày yêu cầu:</b> {selectedWithdrawOrder.date}</div>
+            <div className="mb-2"><b>Số tiền rút:</b> {selectedWithdrawOrder.amount}</div>
+            <div className="mb-2"><b>Trạng thái:</b> {getStatusBadge(selectedWithdrawOrder.status, 'withdraw').text}</div>
+            {selectedWithdrawOrder.phoneNumber && <div className="mb-2"><b>SĐT:</b> {selectedWithdrawOrder.phoneNumber}</div>}
+            {selectedWithdrawOrder.method && <div className="mb-2"><b>Phương thức:</b> {selectedWithdrawOrder.method}</div>}
           </div>
         </div>
       )}
